@@ -29,8 +29,6 @@ cfg = parse_config()
 log.info("starting up for iCloud user %s, device %s, webhook %s, %u minutes pause between requests" % (cfg.user, cfg.device, cfg.webhook, cfg.pause));
 webhook_url = "%s/location/" % cfg.webhook
 
-api = PyiCloudService(cfg.user, cfg.password)
-
 # if api.requires_2fa:
 #     log.warning("Two step authentication problem")
 #     if (not os.isatty(sys.stdin.fileno())):  # cron
@@ -53,7 +51,16 @@ api = PyiCloudService(cfg.user, cfg.password)
 #             sys.exit(1)
 
 old_loc_str = ""
+cur_time = 0
+
 while True:
+    new_time = int(time.time())
+    if new_time - cur_time > 1200:
+        if cur_time > 0:
+            log.info("reconnecting to iCloud after 20 minutes...")
+        api = PyiCloudService(cfg.user, cfg.password)
+        cur_time = new_time
+
     for rdev in api.devices:
         dev = str(rdev)
         if cfg.device in dev:
