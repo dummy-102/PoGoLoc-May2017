@@ -51,17 +51,24 @@ webhook_url = "%s/location/" % cfg.webhook
 #             sys.exit(1)
 
 old_loc_str = ""
-cur_time = 0
+api = None
+
+def get_icloud_devices():
+    global api
+
+    while True:
+        try:
+            if api is None:
+                api = PyiCloudService(cfg.user, cfg.password)
+            devices = api.devices
+            return devices
+        except requests.exceptions.ConnectionError as e:
+            log.warning("Error getting iCloud devices (retrying in 10 sec): %s" % e)
+            time.sleep(10)
+            api = None
 
 while True:
-    new_time = int(time.time())
-    if new_time - cur_time > 1200:
-        if cur_time > 0:
-            log.info("reconnecting to iCloud after 20 minutes...")
-        api = PyiCloudService(cfg.user, cfg.password)
-        cur_time = new_time
-
-    for rdev in api.devices:
+    for rdev in get_icloud_devices():
         dev = str(rdev)
         if cfg.device in dev:
             log.debug("querying %s" % dev);
