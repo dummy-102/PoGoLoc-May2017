@@ -8,4 +8,10 @@ password = MY_ICLOUD_PASSWORD
 device = My iPhone
 
 # PokeAlarm webhook address
-webhook = http://127.0.0.1:4000
+#alarm-url = http://localhost:4000
+
+# PokemonGo-Map address
+#map-url = http://localhost:5000
+
+# Number of minutes to wait between location queries
+pause = 3
