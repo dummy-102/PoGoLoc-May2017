@@ -4,7 +4,7 @@ user = example@icloud.com
 # Your iCloud password. PyiCloud is webscraper - so app specific passwords won't work
 password = MY_ICLOUD_PASSWORD
 
-# Your Apple device name to be queried for location - Find My iPhone has to be turned on!
+# Your Apple device name to be queried for location, e.g. "Johns iPhone" - Find My iPhone has to be turned on!
 device = My iPhone
 
 # PokeAlarm webhook address

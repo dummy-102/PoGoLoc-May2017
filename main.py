@@ -24,13 +24,14 @@ old_loc = None
 
 def parse_config():
     parser = configargparse.ArgParser(default_config_files=['config.ini'])
-    parser.add_argument('-u', '--user', help='Your iCloud username')
-    parser.add_argument('-p', '--password', help='Your iCloud password')
-    parser.add_argument('-d', '--device', help='The name of the device to query')
+    parser.add_argument('-u', '--user', required=True, help='Your iCloud username')
+    parser.add_argument('-p', '--password', required=True, help='Your iCloud password')
+    parser.add_argument('-d', '--device', required=True, help='The name of the device to query, e.g. "Johns iPhone"')
     parser.add_argument('-P', '--pause', type=int,
                         help='Number of minutes to pause between location requests', default=5)
     parser.add_argument('-a', '--alarm-url', help='Optional PokeAlarm webhook URL, usually http://localhost:4000')
     parser.add_argument('-m', '--map-url', help='Optional PokemonGo-Map URL, usually http://localhost:5000')
+    parser.add_argument('-c', '--config', is_config_file=True, help='File containing configuration')
     return parser.parse_args()
 
 def get_icloud_devices():
@@ -72,6 +73,7 @@ def location_differs(new_loc):
 # ==============================================
 
 cfg = parse_config()
+
 if cfg.alarm_url is None and cfg.map_url is None:
     log.error("Neither alarm-url nor map-url was configured.")
     sys.exit(1)
