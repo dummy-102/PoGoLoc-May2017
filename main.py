@@ -43,7 +43,7 @@ def get_icloud_devices():
                 api = PyiCloudService(cfg.user, cfg.password)
             devices = api.devices
             return devices
-        except requests.exceptions.ConnectionError as e:
+        except requests.exceptions.RequestException as e:
             log.warning("Error getting iCloud devices (retrying in 10 sec): %s" % e)
             time.sleep(10)
             api = None
@@ -70,6 +70,13 @@ def location_differs(new_loc):
     else:
         return get_dist(old_loc, new_loc) > 50
 
+def get_location(rdev):
+    try:
+        return rdev.location()
+    except requests.exceptions.RequestException:
+        log.warning("Error getting location of %s" % str(rdev))
+        return None
+
 # ==============================================
 
 cfg = parse_config()
@@ -88,12 +95,12 @@ while True:
         if cfg.device in dev:
             log.debug("querying %s" % dev);
 
-            device_loc = rdev.location()
+            device_loc = get_location(rdev)
             iter = 1
             while (device_loc is None or device_loc['locationFinished'] != True) and iter < 6:
                 log.debug("iterating location, as it is not fresh. sleeping for additional 10 secs")
                 time.sleep(10)
-                device_loc = rdev.location()
+                device_loc = get_location(rdev)
                 iter += 1
 
             if device_loc is None:
