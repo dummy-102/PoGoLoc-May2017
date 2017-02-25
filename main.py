@@ -1,6 +1,8 @@
 #!/usr/bin/python
 #
 # Based on: https://github.com/pliablepixels/zmhacks/blob/master/arc_zm_iphone.py
+import json
+
 import configargparse
 import time
 import requests
@@ -86,7 +88,7 @@ if cfg.alarm_url is None and cfg.map_url is None:
     sys.exit(1)
 
 log.info("starting up for iCloud user %s, device %s, PokeAlarm URL %s, PoGoMap URL %s, %u minutes pause" % (cfg.user, cfg.device, cfg.alarm_url, cfg.map_url, cfg.pause));
-alarm_url = None if cfg.alarm_url is None else ("%s/location/" % cfg.alarm_url)
+alarm_url = None if cfg.alarm_url is None else ("%s" % cfg.alarm_url)
 map_url = None if cfg.map_url is None else ("%s/next_loc" % cfg.map_url)
 
 while True:
@@ -119,7 +121,14 @@ while True:
                     # update PokeAlarm
                     if alarm_url is not None:
                         try:
-                            r = requests.post(alarm_url, params = {'location': '%s,%s' % (lat, lon)})
+                            request = {
+                                'type': 'location',
+                                'message': {
+                                    'latitude': lat,
+                                    'longitude': lon
+                                }
+                            }
+                            r = requests.post(alarm_url, data=json.dumps(request))
                             hook_result = str(r)
                         except requests.exceptions.ReadTimeout:
                             hook_result = 'read timeout'
